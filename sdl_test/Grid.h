@@ -8,8 +8,7 @@
 #include <iostream>
 #include <sstream>
 #include "Renderer.h"
-
-
+//#include "Character.h"
 
 using namespace std;
 
@@ -53,15 +52,7 @@ public:
 		vector<Node*> fourNeighbors;
 		vector<Node*> eightNeighbors;
 
-		EnemyCharacter* grid2;
-
-		//vector<EnemyCharacter*> enemiesInNode;
-
-		//Node()
-		//{
-			//EnemyCharacter* enemyInNode;
-			//enemyInNode = NULL;
-		//}
+		void* enemyInNode = nullptr;
 	};
 
 	Node* maze[SIZE][SIZE];

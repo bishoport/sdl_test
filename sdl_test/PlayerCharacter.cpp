@@ -1,5 +1,6 @@
 #include "PlayerCharacter.h"
-#include <SDL_image.h>
+#include "EnemyCharacter.h"
+
 
 PlayerCharacter::PlayerCharacter()
 {
@@ -41,8 +42,9 @@ void PlayerCharacter::Move(const char* axis)
 
 	if (grid.getNodeByCoordinates(checkX, checkY)->isEnemyNode)
 	{
-		cout << "Está el enemigo" << endl;
-		//grid.getNodeByCoordinates(checkX, checkY)->characterInNode->DoDamage(10);
+		//cout << "Está el enemigo" << endl;
+		//( (EnemyCharacter*) grid.getNodeByCoordinates(checkX, checkY))->DoDamage(10);
+		((EnemyCharacter*)grid.getNodeByCoordinates(checkX, checkY)->enemyInNode)->DoDamage(10);
 	}
 	else
 	{

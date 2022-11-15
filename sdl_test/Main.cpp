@@ -26,7 +26,6 @@ typedef struct gameT
 	Vector2 mousePoint;
 	Vector2 mapScroll2Dpos;
 	int mapScrolllSpeed;
-	//isoEngineT isoEngine;
 	int lastTileClicked;
 }gameT;
 
@@ -37,26 +36,26 @@ Grid grid;
 PlayerCharacter player;
 EnemyCharacter enemy;
 
+
 ReferencesManager* ReferencesManager::_instance;
+
 
 void init()
 {
-
 	grid = Grid();
 	
 	game.loopDone = 0;
 	SDL_PumpEvents();  // make sure we have the latest mouse state
 
-
-	////Player
+	//Player
 	player = PlayerCharacter( "assets/sprites/player.png",grid);
 	player.SetGridPosition({3,5});
 	player.transform.scale.x = 50;
 	player.transform.scale.y = 50;
 	ReferencesManager::getInstance()->setPlayerCharacter(&player);
 
-	//////Enemy
-	enemy =  EnemyCharacter("assets/sprites/Alien.png", grid);
+	//Enemy
+	enemy = EnemyCharacter("assets/sprites/Alien.png", grid);
 	enemy.SetGridPosition({ 6,2 });
 	enemy.transform.scale.x = 50;
 	enemy.transform.scale.y = 50;
@@ -72,10 +71,16 @@ void draw()
 	grid.displayMaze();
 
 	player.displayCharacter();
-	enemy.displayCharacter();
-
 	grid.maze[player.currentGridPosition.x][player.currentGridPosition.y]->isPlayerNode = true;
-	grid.maze[enemy.currentGridPosition.x][enemy.currentGridPosition.y]->isEnemyNode = true;
+
+	
+
+	if (enemy.isDead == false)
+	{
+		enemy.displayCharacter();
+		grid.maze[enemy.currentGridPosition.x][enemy.currentGridPosition.y]->isEnemyNode = true;
+	}
+	
 
 	SDL_RenderPresent(getRenderer());
 	//Don't be a CPU HOG!! :D
@@ -106,6 +111,7 @@ void updateInput()
 		case SDL_KEYDOWN:
 			switch (game.event.key.keysym.sym) {
 			case SDLK_a:
+
 				player.Move("-Y");
 				enemy.Move();
 				break;
@@ -141,6 +147,7 @@ void updateInput()
 
 			if (game.event.button.button == SDL_BUTTON_LEFT)
 			{
+				//delete[] &enemy;
 				//int x, y;
 				////Uint32 buttons;
 				//SDL_GetMouseState(&x, &y);

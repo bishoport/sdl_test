@@ -15,3 +15,15 @@ PlayerCharacter* ReferencesManager::getPlayerCharacter()
 {
 	return player;
 }
+
+
+//void ReferencesManager::setEnemyCharacter(EnemyCharacter* _enemy)
+//{
+//	enemy = _enemy;
+//}
+//
+//EnemyCharacter* ReferencesManager::getEnemyCharacter()
+//{
+//	return enemy;
+//}
+

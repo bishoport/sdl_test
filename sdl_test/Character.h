@@ -5,9 +5,7 @@
 #include <string>
 #include "Grid.h"
 
-
 using namespace std;
-
 
 class Character {
 
@@ -16,8 +14,6 @@ public:
 	virtual void displayCharacter();
 	virtual void SetGridPosition(Vector2 gridPosition);
 	Vector2 currentGridPosition;
-	//int lifePoint = 10;
-	//void DoDamage(int value);
 
 protected:
 	Grid grid;

@@ -5,6 +5,7 @@ using namespace std;
 
 void Character::displayCharacter()
 {
+	
 	transform.position.x = grid.maze[currentGridPosition.x][currentGridPosition.y]->centerPoint.x + 25;
 	transform.position.y = grid.maze[currentGridPosition.x][currentGridPosition.y]->centerPoint.y;
 
@@ -19,21 +20,9 @@ void Character::displayCharacter()
 
 void Character::SetGridPosition(Vector2 gridposition)
 {
+	
 	currentGridPosition = gridposition;
 
 	transform.position.x = grid.maze[gridposition.x][gridposition.y]->centerPoint.x + 25;
 	transform.position.y = grid.maze[gridposition.x][gridposition.y]->centerPoint.y;
 }
-
-
-//void Character::dodamage(int value)
-//{
-//	lifepoint -= value;
-//
-//	if (lifepoint <= 0)
-//	{
-//		cout << "character is dead" << endl;
-//	}
-//}
-
-

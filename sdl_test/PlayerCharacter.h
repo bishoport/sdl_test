@@ -1,7 +1,11 @@
 #ifndef PLAYER_CHARACTER_H
 #define PLAYER_CHARACTER_H
 
+#include <SDL_image.h>
 #include "Character.h"
+
+
+
 
 class PlayerCharacter : public Character
 {

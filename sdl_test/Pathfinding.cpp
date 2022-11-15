@@ -29,7 +29,7 @@ vector< Grid::Node*> Pathfinding::FindPath(Grid::Node& _startNode, Grid::Node& _
             grid.maze[i][j]->isActive = false;
             grid.maze[i][j]->isPlayerNode = false;
             grid.maze[i][j]->isEnemyNode = false;
-            //grid.maze[i][j]->enemyInNode = nullptr;
+            grid.maze[i][j]->enemyInNode = nullptr;
         }
     }
 
