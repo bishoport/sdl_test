@@ -6,6 +6,8 @@
 #include "Pathfinding.h"
 #include "ReferencesManager.h"
 
+
+
 class EnemyCharacter : public Character
 {
 public:
@@ -15,12 +17,15 @@ public:
 	void Move();
 	int lifePoint = 10;
 	bool isDead = false;
+	
 
 	void DoDamage(int value);
-
+	//bool damageTimer(int num);
 private:
 	Pathfinding pathfinding;
 	vector<Grid::Node*> path;
+
+	
 	
 };
 

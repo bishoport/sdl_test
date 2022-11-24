@@ -1,6 +1,37 @@
 #include "EnemyCharacter.h"
 
 
+
+#include <thread>
+#include <ctime> // time header
+#include <SDL.h>
+#include <SDL_thread.h>
+
+int threadFunction(void* data)
+{
+	cout << "EMPIEZA" << endl;
+	//cout << "Please enter seconds: ";//prompt for user
+	//int timer = 5; //int for user input
+	//cin >> timer; //user input
+	int timer = clock();
+	while ((timer / 1000) < 5) // While the program hasn't been going for 60 second
+	{
+		//system("cls"); // Clear All of the text
+		timer = clock();  // Update the timer var
+		cout << "Seconds since started: " << timer / 1000 << endl; // Print the time since the program started in seconds
+		break;
+	}
+	//cout << "The program has been going for a minute" << endl;
+	//system("pause");
+	cout << "ACABA" << endl;
+
+	return 0;
+}
+
+
+
+
+
 EnemyCharacter::EnemyCharacter()
 {
 	
@@ -41,7 +72,7 @@ void EnemyCharacter::Move()
 		int NodeToPosition = 0;
 		if (path[1]->isPlayerNode)
 		{
-			cout << "Está el player" << endl;
+			//cout << "Está el player" << endl;
 			NodeToPosition = 0;
 		}
 		else
@@ -58,6 +89,8 @@ void EnemyCharacter::Move()
 		path[NodeToPosition]->isEnemyNode = true;
 	}
 }
+
+
 
 
 
@@ -84,4 +117,16 @@ void EnemyCharacter::DoDamage(int value)
 									    ->enemies.begin(), ReferencesManager::getInstance()->enemies.end(), 
 										this), ReferencesManager::getInstance()->enemies.end());
 	}
+	else
+	{
+		int data = 101;
+		SDL_Thread* threadID = SDL_CreateThread(threadFunction, "LazyThread", (void*)data);
+		cout << "VAMOS" << endl;
+		//SDL_WaitThread(threadID, NULL);
+		//SDL_DetachThread(threadID);
+		//SDLK_thread
+	}
+
 }
+
+

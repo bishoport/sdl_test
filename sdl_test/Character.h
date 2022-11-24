@@ -14,6 +14,7 @@ public:
 	virtual void displayCharacter();
 	virtual void SetGridPosition(Vector2 gridPosition);
 	Vector2 currentGridPosition;
+	bool isInDamage = false;
 
 protected:
 	Grid grid;

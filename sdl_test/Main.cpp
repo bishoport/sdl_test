@@ -44,24 +44,6 @@ void init()
 {
 	grid = Grid();
 
-	for (int i = 0; i < Grid::SIZE; i++)
-	{
-		for (int j = 0; j < Grid::SIZE; j++)
-		{
-			grid.maze[i][j]->fCost = FLT_MAX;
-			grid.maze[i][j]->gCost = FLT_MAX;
-			grid.maze[i][j]->hCost = FLT_MAX;
-			grid.maze[i][j]->parentX = -1;
-			grid.maze[i][j]->parentY = -1;
-			grid.maze[i][j]->x = i;
-			grid.maze[i][j]->y = j;
-			grid.maze[i][j]->isActive = false;
-			grid.maze[i][j]->isPlayerNode = false;
-			grid.maze[i][j]->isEnemyNode = false;
-			grid.maze[i][j]->enemyInNode = nullptr;
-		}
-	}
-	
 	game.loopDone = 0;
 	SDL_PumpEvents();  // make sure we have the latest mouse state
 
@@ -73,7 +55,7 @@ void init()
 	player->transform.scale.y = 50;
 	ReferencesManager::getInstance()->setPlayerCharacter(player);
 
-	for (int i = 0; i < 5; i++)
+	for (int i = 0; i < 1; i++)
 	{
 		//Enemy
 		EnemyCharacter* enemy;
@@ -84,8 +66,6 @@ void init()
 
 		ReferencesManager::getInstance()->enemies.push_back(enemy);
 	}
-
-	//cout << ReferencesManager::getInstance()->enemies.size() << endl;
 }
 
 

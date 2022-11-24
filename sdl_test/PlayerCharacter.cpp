@@ -44,7 +44,7 @@ void PlayerCharacter::Move(const char* axis)
 	{
 		//cout << "Está el enemigo" << endl;
 		//Casting de void* en Node a EnemyCharacter
-		((EnemyCharacter*)grid.getNodeByCoordinates(checkX, checkY)->enemyInNode)->DoDamage(10);
+		((EnemyCharacter*)grid.getNodeByCoordinates(checkX, checkY)->enemyInNode)->DoDamage(1);
 
 	}
 	else

@@ -184,28 +184,13 @@ bool Pathfinding::isDestination(int x, int y, Grid::Node dest) {
 
 
 double Pathfinding::calculateH(int x, int y, Grid::Node dest) {
-   // double H = (sqrt((x - dest.x) * (x - dest.x) + (y - dest.y) * (y - dest.y)));
-
-   //double H = (dest.x - x) + (dest.y - y);
    double H = abs(dest.x - x) + abs(dest.y - y);
-    
-    //double dstX = abs(x - dest.x);
-    //double dstY = abs(y - dest.y);
-    //if (dstX > dstY)
-    //{
-    //    return 14 * dstY + 10 * (dstX - dstY);
-    //}
-    //else
-    //{
-    //    return 14 * dstX + 10 * (dstY - dstX);
-    //}
-
-    return H;
+   return H;
 }
 
 vector<Grid::Node*> Pathfinding::makePath(Grid& grid,Grid::Node dest) {
     try {
-        cout << "Found a path" << endl;
+        //cout << "Found a path" << endl;
         int x = dest.x;
         int y = dest.y;
         stack<Grid::Node*> path;
