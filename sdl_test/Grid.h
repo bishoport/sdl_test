@@ -37,37 +37,37 @@ public:
 
 	struct Node
 	{
-		bool isActive;
-		bool isWay;
-		bool isPlayerNode;
-		bool isEnemyNode;
-		int y;
-		int x;
+		bool isActive = false;
+		bool isWay = false;
+		bool isPlayerNode = false;
+		bool isEnemyNode = false;
+		int y = 0;
+		int x = 0;
 		Vector2 centerPoint;
-		int parentX;
-		int parentY;
-		float gCost;
-		float hCost;
-		float fCost;
+		int parentX  = -1;
+		int parentY = -1;
+		float gCost = FLT_MAX;
+		float hCost = FLT_MAX;
+		float fCost = FLT_MAX;
 		vector<Node*> fourNeighbors;
 		vector<Node*> eightNeighbors;
 
 		void* enemyInNode = nullptr;
 	};
 
-	Node* maze[SIZE][SIZE];
+	Node* maze[SIZE][SIZE]{};
 	vector<Node*> path;
 
 	string mazeFile =
 	"o x x x x x x x o o "
-	"x x x x x x x x x x "
-	"x x x x x x x x x x "
-	"x x o o o o o o x x "
+	"x o o o o o o o o x "
+	"x o x x o x o x o x "
+	"x o o o o o o o o x "
 	"x o o x x x x o o x "
 	"o o o o o o o o o x "
 	"o o o o o o o o o o "
-	"x x x x x x x x x x "
-	"x x x x x x x x x x "
+	"x o x x o x x o o x "
+	"x o o o o o o o o x "
 	"x x x x x x x x x x ";
 
 	SDL_Color xColor = { 27,127,122,255 };

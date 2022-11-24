@@ -49,11 +49,12 @@ void EnemyCharacter::Move()
 			NodeToPosition = 1;
 		}
 
-		path[NodeToPosition]->enemyInNode = this;
 
+		path[0]->enemyInNode = nullptr;
+		path[0]->isEnemyNode = false;
 		currentGridPosition.x = path[NodeToPosition]->x;
 		currentGridPosition.y = path[NodeToPosition]->y;
-		grid.getNodeByCoordinates(currentGridPosition.x, currentGridPosition.y)->enemyInNode = this;
+		path[NodeToPosition]->enemyInNode = this;
 		path[NodeToPosition]->isEnemyNode = true;
 	}
 }
@@ -62,6 +63,8 @@ void EnemyCharacter::Move()
 
 void EnemyCharacter::DoDamage(int value)
 {
+	if (this == NULL) return;
+
 	if (this->isDead == true) {
 		cout << &EnemyCharacter::isDead << endl;
 		return;
@@ -73,5 +76,12 @@ void EnemyCharacter::DoDamage(int value)
 	{
 		cout << "character is dead" << endl;
 		this->isDead = true;
+
+		grid.getNodeByCoordinates(currentGridPosition.x, currentGridPosition.y)->enemyInNode = nullptr;
+		grid.getNodeByCoordinates(currentGridPosition.x, currentGridPosition.y)->isEnemyNode = false;
+
+		ReferencesManager::getInstance()->enemies.erase(std::remove(ReferencesManager::getInstance()
+									    ->enemies.begin(), ReferencesManager::getInstance()->enemies.end(), 
+										this), ReferencesManager::getInstance()->enemies.end());
 	}
 }

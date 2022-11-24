@@ -21,7 +21,7 @@ void PlayerCharacter::Move(const char* axis)
 	int checkX = currentGridPosition.x;
 	int checkY = currentGridPosition.y;
 
-	cout << axis << endl;
+	//cout << axis << endl;
 
 	if (axis == "-Y")
 	{
@@ -43,19 +43,22 @@ void PlayerCharacter::Move(const char* axis)
 	if (grid.getNodeByCoordinates(checkX, checkY)->isEnemyNode)
 	{
 		//cout << "Está el enemigo" << endl;
-		//( (EnemyCharacter*) grid.getNodeByCoordinates(checkX, checkY))->DoDamage(10);
+		//Casting de void* en Node a EnemyCharacter
 		((EnemyCharacter*)grid.getNodeByCoordinates(checkX, checkY)->enemyInNode)->DoDamage(10);
+
 	}
 	else
 	{
 		if (grid.getNodeByCoordinates(checkX, checkY)->isWay)
 		{
+			grid.maze[currentGridPosition.x][currentGridPosition.y]->isPlayerNode = false;
 			currentGridPosition.x = checkX;
 			currentGridPosition.y = checkY;
+			grid.maze[currentGridPosition.x][currentGridPosition.y]->isPlayerNode = true;
 		}
 		else
 		{
-			cout << "Muralla" << endl;
+			//cout << "Muralla" << endl;
 		}
 	}
 }

@@ -33,8 +33,8 @@ gameT game;
 
 Grid grid;
 
-PlayerCharacter player;
-EnemyCharacter enemy;
+
+
 
 
 ReferencesManager* ReferencesManager::_instance;
@@ -43,22 +43,49 @@ ReferencesManager* ReferencesManager::_instance;
 void init()
 {
 	grid = Grid();
+
+	for (int i = 0; i < Grid::SIZE; i++)
+	{
+		for (int j = 0; j < Grid::SIZE; j++)
+		{
+			grid.maze[i][j]->fCost = FLT_MAX;
+			grid.maze[i][j]->gCost = FLT_MAX;
+			grid.maze[i][j]->hCost = FLT_MAX;
+			grid.maze[i][j]->parentX = -1;
+			grid.maze[i][j]->parentY = -1;
+			grid.maze[i][j]->x = i;
+			grid.maze[i][j]->y = j;
+			grid.maze[i][j]->isActive = false;
+			grid.maze[i][j]->isPlayerNode = false;
+			grid.maze[i][j]->isEnemyNode = false;
+			grid.maze[i][j]->enemyInNode = nullptr;
+		}
+	}
 	
 	game.loopDone = 0;
 	SDL_PumpEvents();  // make sure we have the latest mouse state
 
 	//Player
-	player = PlayerCharacter( "assets/sprites/player.png",grid);
-	player.SetGridPosition({3,5});
-	player.transform.scale.x = 50;
-	player.transform.scale.y = 50;
-	ReferencesManager::getInstance()->setPlayerCharacter(&player);
+	PlayerCharacter* player;
+	player = new PlayerCharacter( "assets/sprites/player.png",grid);
+	player->SetGridPosition({3,5});
+	player->transform.scale.x = 50;
+	player->transform.scale.y = 50;
+	ReferencesManager::getInstance()->setPlayerCharacter(player);
 
-	//Enemy
-	enemy = EnemyCharacter("assets/sprites/Alien.png", grid);
-	enemy.SetGridPosition({ 6,2 });
-	enemy.transform.scale.x = 50;
-	enemy.transform.scale.y = 50;
+	for (int i = 0; i < 5; i++)
+	{
+		//Enemy
+		EnemyCharacter* enemy;
+		enemy = new EnemyCharacter("assets/sprites/Alien.png", grid);
+		enemy->SetGridPosition({ 6,1+i });
+		enemy->transform.scale.x = 50;
+		enemy->transform.scale.y = 50;
+
+		ReferencesManager::getInstance()->enemies.push_back(enemy);
+	}
+
+	//cout << ReferencesManager::getInstance()->enemies.size() << endl;
 }
 
 
@@ -70,17 +97,22 @@ void draw()
 	//DRAW STUFFS
 	grid.displayMaze();
 
-	player.displayCharacter();
-	grid.maze[player.currentGridPosition.x][player.currentGridPosition.y]->isPlayerNode = true;
+	ReferencesManager::getInstance()->getPlayerCharacter()->displayCharacter();
+	grid.maze[ReferencesManager::getInstance()->getPlayerCharacter()->currentGridPosition.x][ReferencesManager::getInstance()->getPlayerCharacter()->currentGridPosition.y]->isPlayerNode = true;
 
-	
-
-	if (enemy.isDead == false)
+	for (int i = 0; i < ReferencesManager::getInstance()->enemies.size(); i++)
 	{
-		enemy.displayCharacter();
-		grid.maze[enemy.currentGridPosition.x][enemy.currentGridPosition.y]->isEnemyNode = true;
+		if (dynamic_cast<EnemyCharacter*>(ReferencesManager::getInstance()->enemies[i]))
+		{
+			EnemyCharacter* enemy = dynamic_cast<EnemyCharacter*>(ReferencesManager::getInstance()->enemies[i]);
+
+			if (enemy->isDead == false)
+			{
+				ReferencesManager::getInstance()->enemies[i]->displayCharacter();
+				grid.maze[enemy->currentGridPosition.x][enemy->currentGridPosition.y]->isEnemyNode = true;
+			}
+		}
 	}
-	
 
 	SDL_RenderPresent(getRenderer());
 	//Don't be a CPU HOG!! :D
@@ -92,7 +124,21 @@ void update()
 	SDL_GetMouseState(&game.mouseRect.x, &game.mouseRect.y);
 }
 
+void moveAllEnemies()
+{
+	for (int i = 0; i < ReferencesManager::getInstance()->enemies.size(); i++)
+	{
+		if (dynamic_cast<EnemyCharacter*>(ReferencesManager::getInstance()->enemies[i]))
+		{
+			EnemyCharacter* enemy = dynamic_cast<EnemyCharacter*>(ReferencesManager::getInstance()->enemies[i]);
 
+			if (enemy->isDead == false)
+			{
+				enemy->Move();
+			}
+		}
+	}
+}
 
 
 
@@ -112,23 +158,23 @@ void updateInput()
 			switch (game.event.key.keysym.sym) {
 			case SDLK_a:
 
-				player.Move("-Y");
-				enemy.Move();
+				ReferencesManager::getInstance()->getPlayerCharacter()->Move("-Y");
+				moveAllEnemies();
 				break;
 
 			case SDLK_d:
-				player.Move("+Y");
-				enemy.Move();
+				ReferencesManager::getInstance()->getPlayerCharacter()->Move("+Y");
+				moveAllEnemies();
 				break;
 
 			case SDLK_w:
-				player.Move("-X");
-				enemy.Move();
+				ReferencesManager::getInstance()->getPlayerCharacter()->Move("-X");
+				moveAllEnemies();
 				break;
 
 			case SDLK_s:
-				player.Move("+X");
-				enemy.Move();
+				ReferencesManager::getInstance()->getPlayerCharacter()->Move("+X");
+				moveAllEnemies();
 				break;
 			default:break;
 			}
@@ -147,7 +193,8 @@ void updateInput()
 
 			if (game.event.button.button == SDL_BUTTON_LEFT)
 			{
-				//delete[] &enemy;
+				//enemies.erase(std::remove(enemies.begin(), enemies.end(), enemies[0]), enemies.end());
+
 				//int x, y;
 				////Uint32 buttons;
 				//SDL_GetMouseState(&x, &y);
@@ -186,6 +233,8 @@ void updateInput()
 		}
 	}
 }
+
+
 
 
 

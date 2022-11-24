@@ -28,6 +28,12 @@ Grid::Grid() {
 			n->x = row;
 			n->y = column;
 
+			n->isActive = false;
+			n->isPlayerNode = false;
+			n->isEnemyNode = false;
+			n->enemyInNode = nullptr;
+
+
 			maze[column][row] = n;
 
 			//Center node in scene

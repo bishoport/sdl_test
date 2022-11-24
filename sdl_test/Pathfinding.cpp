@@ -1,20 +1,16 @@
-
 #include "Pathfinding.h"
 
 using namespace std;
 
-Pathfinding::Pathfinding() {
-
-	
-}
+Pathfinding::Pathfinding() {}
 
 vector< Grid::Node*> Pathfinding::FindPath(Grid::Node& _startNode, Grid::Node& _targetNode, Grid& grid)
 {
-    vector<Grid::Node*> empty;
+    vector<Grid::Node*> empty; //Default return value
 
-    bool destinationFound = false;
+    bool destinationFound = false; //Flag
 
-    //Reset GRID
+    //Reset GRID DATA NODES  
     for (int i = 0; i < Grid::SIZE; i++)
     {
         for (int j = 0; j < Grid::SIZE; j++)
@@ -26,16 +22,14 @@ vector< Grid::Node*> Pathfinding::FindPath(Grid::Node& _startNode, Grid::Node& _
             grid.maze[i][j]->parentY = -1;
             grid.maze[i][j]->x = i;
             grid.maze[i][j]->y = j;
-            grid.maze[i][j]->isActive = false;
-            grid.maze[i][j]->isPlayerNode = false;
-            grid.maze[i][j]->isEnemyNode = false;
-            grid.maze[i][j]->enemyInNode = nullptr;
         }
     }
 
     //SET START NODE
     int x = _startNode.x;
     int y = _startNode.y;
+
+    //SET START NODE DATA
     grid.maze[x][y]->fCost = 0.0;
     grid.maze[x][y]->gCost = 0.0;
     grid.maze[x][y]->hCost = 0.0;
@@ -60,29 +54,11 @@ vector< Grid::Node*> Pathfinding::FindPath(Grid::Node& _startNode, Grid::Node& _
     //EMPIEZA EL ALGORITMO
 	while (openSet.size() > 0)
 	{
-		Grid::Node* currentNode;
-
-		do {
-            float temp = FLT_MAX;
-            vector<Grid::Node*>::iterator itNode;
-            for (vector<Grid::Node*>::iterator it = openSet.begin();
-                it != openSet.end(); it = next(it)) {
-                Grid::Node* n = *it;
-                if (n->fCost < temp) {
-                    temp = n->fCost;
-                    itNode = it;
-                }
-            }
-            currentNode = *itNode;
-            openSet.erase(itNode);
-		} 
-        
-        while (isValid(currentNode->x, currentNode->y ,grid) == false);
+		Grid::Node* currentNode = *openSet.begin(); //Get the first
+        openSet.erase(openSet.begin());  //Erase the first
 
         x = currentNode->x;
         y = currentNode->y;
-        closedSet[x][y] = true;
-
 
         //CHECK FOUR NEIGHBORS
         for (int i = 0; i < grid.maze[x][y]->fourNeighbors.size(); i++)
@@ -98,6 +74,7 @@ vector< Grid::Node*> Pathfinding::FindPath(Grid::Node& _startNode, Grid::Node& _
                     destinationFound = true;
                     return makePath(grid, _targetNode);
                 }
+
                 else if (closedSet[grid.maze[x][y]->fourNeighbors[i]->x][grid.maze[x][y]->fourNeighbors[i]->y] == false)
                 {
                     gNew = currentNode->gCost + 1.0;
@@ -118,14 +95,6 @@ vector< Grid::Node*> Pathfinding::FindPath(Grid::Node& _startNode, Grid::Node& _
                 }
             }
         }
-
-
-
-
-
-
-
-
 
         //CHECK EIGHT NEIGHBORS
         //for (int newX = -1; newX <= 1; newX++) {
@@ -161,10 +130,10 @@ vector< Grid::Node*> Pathfinding::FindPath(Grid::Node& _startNode, Grid::Node& _
         //        }
         //    }
         //}
-
-
     }
-    if (destinationFound == false) {
+
+    if (destinationFound == false) 
+    {
         cout << "Destination not found" << endl;
         return empty;
     }	
@@ -175,16 +144,27 @@ vector< Grid::Node*> Pathfinding::FindPath(Grid::Node& _startNode, Grid::Node& _
 
 
 
-bool Pathfinding::isValid(int x, int y, Grid& grid) { //If our Grid::Node is an obstacle it is not valid
+bool Pathfinding::isValid(int x, int y, Grid& grid) //If our Grid::Node is an obstacle it is not valid
+{ 
+
     int id = x + y * (X_MAX / X_STEP); 
     
-    if (x < 0 || y < 0 || x >= (X_MAX / X_STEP) || y >= (Y_MAX / Y_STEP)) { //Check max distance to walk
+    if (x < 0 || y < 0 || x >= (X_MAX / X_STEP) || y >= (Y_MAX / Y_STEP)) //Check max distance to walk
+    { 
         return false;
     }
     else
     {
-        if (grid.maze[x][y]->isWay) { //check if is way
-            return true;
+        if (grid.maze[x][y]->isWay) //check if is way
+        { 
+            if (grid.maze[x][y]->isEnemyNode == false) //check if enemy isnt here
+            { 
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
         else
         {

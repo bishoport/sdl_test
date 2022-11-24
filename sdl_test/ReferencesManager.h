@@ -4,17 +4,17 @@
 
 #include "PlayerCharacter.h"
 
-
-
 class ReferencesManager
 {
 	static ReferencesManager* _instance;
 	PlayerCharacter* player;
-	//Character* enemy;
 
 	ReferencesManager();
 
 public:
+
+	vector<Character*> enemies;
+	
 	static ReferencesManager* getInstance()
 	{
 		if (_instance == NULL)
@@ -24,10 +24,6 @@ public:
 
 	void setPlayerCharacter(PlayerCharacter* _player);
 	PlayerCharacter* getPlayerCharacter();
-
-
-	//void setEnemyCharacter(Character* _enemy);
-	//Character* getEnemyCharacter();
 };
 #endif
 
