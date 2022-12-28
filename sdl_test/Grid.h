@@ -8,6 +8,7 @@
 #include <iostream>
 #include <sstream>
 #include "Renderer.h"
+#include "Spritesheet.h"
 //#include "Character.h"
 
 using namespace std;
@@ -98,6 +99,10 @@ public:
 private:
 	vector< Grid::Node*> GetFourNeighbors(int x, int y);
 	vector< Grid::Node*> GetEightNeighbors(int x, int y);
+
+	SDL_Rect gSpriteClips[2];
+	Spritesheet  gSpriteSheetTexture;
+	bool loadMedia(const char* _filename);
 };
 
 

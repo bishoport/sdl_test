@@ -29,10 +29,6 @@ Grid::Grid() {
 				startPlayerNode = n;
 			}
 
-
-
-
-
 			n->fCost = FLT_MAX;
 			n->gCost = FLT_MAX;
 			n->hCost = FLT_MAX;
@@ -68,6 +64,29 @@ Grid::Grid() {
 	cout << "YA" << endl;
 }
 
+
+bool Grid::loadMedia(const char* _filename)
+{
+	//Loading success flag
+	bool success = true;
+
+	//Load sprite sheet texture
+	if (!gSpriteSheetTexture.loadFromFile(_filename))
+	{
+		printf("Failed to load sprite sheet texture!\n");
+		success = false;
+	}
+	else
+	{
+		//Set idle sprite
+		gSpriteClips[0].x = Grid::SIZE_NODE * 9;
+		gSpriteClips[0].y = Grid::SIZE_NODE * 3;
+		gSpriteClips[0].w = Grid::SIZE_NODE;
+		gSpriteClips[0].h = Grid::SIZE_NODE;
+	}
+
+	return success;
+}
 
 vector< Grid::Node*> Grid::GetFourNeighbors(int x, int y)
 {
@@ -233,6 +252,7 @@ void Grid::displayMaze()
 			if (maze[i][j]->isWay)
 			{
 				SDL_SetRenderDrawColor(getRenderer(), xColor.r, xColor.g, xColor.b, xColor.a);
+				gSpriteSheetTexture.render(transform.position.x, transform.position.y, &gSpriteClips[0]);
 			}
 			else
 			{

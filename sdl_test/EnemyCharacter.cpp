@@ -41,12 +41,7 @@ int threadFunction(void* data)
 
 
 
-
-
-EnemyCharacter::EnemyCharacter()
-{
-	
-}
+EnemyCharacter::EnemyCharacter(){}
 
 EnemyCharacter::~EnemyCharacter() 
 {
@@ -100,7 +95,6 @@ void EnemyCharacter::Move()
 	}
 
 	grid.maze[ReferencesManager::getInstance()->getPlayerCharacter()->currentGridPosition.x][ReferencesManager::getInstance()->getPlayerCharacter()->currentGridPosition.y]->isPlayerNode = true;
-	//grid.maze[currentGridPosition.x][currentGridPosition.y]->isEnemyNode = true;
 
 	if (path.size() > 0)
 	{
@@ -143,7 +137,6 @@ void EnemyCharacter::update(float deltaTime)
 	if (isMoving)
 	{
 		tick += deltaTime;
-		//cout << "tick " << tick << endl;
 		float tval = min(tick / duration, 1.0f);
 
 		float myX = startX + (endX - startX) * tval;
@@ -155,10 +148,7 @@ void EnemyCharacter::update(float deltaTime)
 			isMoving = false;
 			tick = 0.0f;
 			grid.unActiveAllNodes();
-			//cout << "ACABA LA TRANSICION " << myX << endl;
 		}
-		/*cout << "myX " << myX << endl;
-		cout << "myY " << myY << endl;*/
 
 		transform.position.x = myX;
 		transform.position.y = myY;
