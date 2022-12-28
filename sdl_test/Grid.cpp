@@ -239,20 +239,20 @@ void Grid::displayMaze()
 				SDL_SetRenderDrawColor(getRenderer(), wayColor.r, wayColor.g, wayColor.b, wayColor.a);
 			}
 
-			if (maze[i][j]->isActive)
-			{
-				SDL_SetRenderDrawColor(getRenderer(), activeColor.r, activeColor.g, activeColor.b, activeColor.a);
-			}
+			//if (maze[i][j]->isActive)
+			//{
+			//	SDL_SetRenderDrawColor(getRenderer(), activeColor.r, activeColor.g, activeColor.b, activeColor.a);
+			//}
 
-			if (maze[i][j]->isPlayerNode)
-			{
-				SDL_SetRenderDrawColor(getRenderer(), playerColor.r, playerColor.g, playerColor.b, playerColor.a);
-			}
+			//if (maze[i][j]->isPlayerNode)
+			//{
+			//	SDL_SetRenderDrawColor(getRenderer(), playerColor.r, playerColor.g, playerColor.b, playerColor.a);
+			//}
 
-			if (maze[i][j]->isEnemyNode)
-			{
-				SDL_SetRenderDrawColor(getRenderer(), emenyColor.r, emenyColor.g, emenyColor.b, emenyColor.a);
-			}
+			//if (maze[i][j]->isEnemyNode)
+			//{
+			//	SDL_SetRenderDrawColor(getRenderer(), emenyColor.r, emenyColor.g, emenyColor.b, emenyColor.a);
+			//}
 
 			SDL_RenderFillRect(getRenderer(), &rectNode);
 

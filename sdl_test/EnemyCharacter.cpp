@@ -51,22 +51,39 @@ EnemyCharacter::EnemyCharacter()
 EnemyCharacter::~EnemyCharacter() 
 {
 	cout << "ME destruyen!!!" << endl;
+	gSpriteSheetTexture.free();
 }
 
-EnemyCharacter::EnemyCharacter(const char* _IdleImage, const char* _DamageImage, Grid& _grid)
+EnemyCharacter::EnemyCharacter(const char* _filename, Grid& _grid)
 {
 	pathfinding = Pathfinding();
 	grid = _grid;
-	SDL_Surface* tmpSurface = IMG_Load(_IdleImage);
-	characterTex = SDL_CreateTextureFromSurface(getRenderer(), tmpSurface);
 
-	tmpSurface = IMG_Load(_DamageImage);
-	characterDamageTex = SDL_CreateTextureFromSurface(getRenderer(), tmpSurface);
-
-	SDL_FreeSurface(tmpSurface);
+	EnemyCharacter::loadMedia(_filename);
 }
 
+bool EnemyCharacter::loadMedia(const char* _filename)
+{
+	//Loading success flag
+	bool success = true;
 
+	//Load sprite sheet texture
+	if (!gSpriteSheetTexture.loadFromFile(_filename))
+	{
+		printf("Failed to load sprite sheet texture!\n");
+		success = false;
+	}
+	else
+	{
+		//Set idle sprite
+		gSpriteClips[0].x = Grid::SIZE_NODE * 9;
+		gSpriteClips[0].y = Grid::SIZE_NODE * 3;
+		gSpriteClips[0].w = Grid::SIZE_NODE;
+		gSpriteClips[0].h = Grid::SIZE_NODE;
+	}
+
+	return success;
+}
 
 
 void EnemyCharacter::Move()
@@ -109,8 +126,8 @@ void EnemyCharacter::Move()
 		startX = transform.position.x;
 		startY = transform.position.y;
 
-		endX = grid.maze[currentGridPosition.x][currentGridPosition.y]->centerPoint.x + 25;
-		endY = grid.maze[currentGridPosition.x][currentGridPosition.y]->centerPoint.y;
+		endX = grid.maze[currentGridPosition.x][currentGridPosition.y]->centerPoint.x + Grid::SIZE_NODE / 2;
+		endY = grid.maze[currentGridPosition.x][currentGridPosition.y]->centerPoint.y + Grid::SIZE_NODE / 2;
 
 		isMoving = true;
 	}
@@ -147,29 +164,18 @@ void EnemyCharacter::update(float deltaTime)
 		transform.position.y = myY;
 
 	}
+	else
+	{
+		transform.position.x = grid.maze[currentGridPosition.x][currentGridPosition.y]->centerPoint.x + Grid::SIZE_NODE / 2;
+		transform.position.y = grid.maze[currentGridPosition.x][currentGridPosition.y]->centerPoint.y + Grid::SIZE_NODE / 2;
+	}
 }
 
 
 
 void EnemyCharacter::draw()
 {
-
-
-	characterRect.h = transform.scale.y;
-	characterRect.w = transform.scale.x;
-	characterRect.x = transform.position.x;
-	characterRect.y = transform.position.y;
-
-	SDL_RenderCopy(getRenderer(), characterTex, NULL, &characterRect);
-
-	if (isInDamage == false)
-	{
-		SDL_RenderCopy(getRenderer(), characterTex, NULL, &characterRect);
-	}
-	else
-	{
-		SDL_RenderCopy(getRenderer(), characterDamageTex, NULL, &characterRect);
-	}
+	gSpriteSheetTexture.render(transform.position.x, transform.position.y, &gSpriteClips[0]);
 }
 
 

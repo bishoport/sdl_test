@@ -52,8 +52,8 @@ void init()
 
 	//Player
 	PlayerCharacter* player;
-	player = new PlayerCharacter( "assets/sprites/player.png",grid);
-	player->SetGridPosition({grid.startPlayerNode->y,grid.startPlayerNode->x});
+	player = new PlayerCharacter( "assets/sprites/sprite_sheet.png",grid);
+	player->SetGridPosition({grid.startPlayerNode->y,grid.startPlayerNode->x});+ Grid::SIZE_NODE / 2;
 	player->transform.scale.x = Grid::SIZE_NODE;
 	player->transform.scale.y = Grid::SIZE_NODE;
 	ReferencesManager::getInstance()->setPlayerCharacter(player);
@@ -63,7 +63,7 @@ void init()
 	for (int i = 0; i < grid.startEnemiesNodes.size(); i++)
 	{
 		EnemyCharacter* enemy;
-		enemy = new EnemyCharacter("assets/sprites/Alien.png", "assets/sprites/Alien_damage.png", grid);
+		enemy = new EnemyCharacter("assets/sprites/sprite_sheet.png", grid);
 		enemy->SetGridPosition({ grid.startEnemiesNodes[i]->y,grid.startEnemiesNodes[i]->x});
 		enemy->transform.scale.x = Grid::SIZE_NODE;
 		enemy->transform.scale.y = Grid::SIZE_NODE;
@@ -163,7 +163,7 @@ void moveAllEnemies()
 
 			turnManager->StartPause([]() {
 
-				cout << "VOLVEMOS DE LA PAUSA" << endl;
+				//cout << "VOLVEMOS DE LA PAUSA" << endl;
 
 				enemyTurn->Move();
 

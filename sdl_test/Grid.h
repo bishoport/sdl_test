@@ -33,7 +33,7 @@ class Grid {
 public:
 	static const int SIZE_Y = 15;
 	static const int SIZE_X = 21;
-	static const int SIZE_NODE = 50;
+	static const int SIZE_NODE = 32;
 
 	struct Node
 	{

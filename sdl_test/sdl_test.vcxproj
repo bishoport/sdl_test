@@ -150,6 +150,7 @@
     <ClCompile Include="PlayerCharacter.cpp" />
     <ClCompile Include="ReferencesManager.cpp" />
     <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="Spritesheet.cpp" />
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="TimerPause.cpp" />
   </ItemGroup>
@@ -163,6 +164,7 @@
     <ClInclude Include="ReferencesManager.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Slotmap.hpp" />
+    <ClInclude Include="Spritesheet.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="TimerPause.h" />
     <ClInclude Include="TurnManager.h" />
@@ -171,6 +173,7 @@
     <Image Include="..\..\..\..\..\SDL_ECS_TEMPLATE\SDL_ECS_TEMPLATE\SDL_ECS_TEMPLATE\assets\Alien_damage.png" />
     <Image Include="assets\sprites\Alien.png" />
     <Image Include="assets\sprites\player.png" />
+    <Image Include="assets\sprites\sprite_sheet.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
