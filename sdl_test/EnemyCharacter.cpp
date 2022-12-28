@@ -1,30 +1,41 @@
 #include "EnemyCharacter.h"
 
-
-
 #include <thread>
-#include <ctime> // time header
 #include <SDL.h>
 #include <SDL_thread.h>
+#include <chrono>
+#include <mutex>
+
+
+typedef struct {
+	EnemyCharacter *enemy;
+} ThreadData;
+
+
 
 int threadFunction(void* data)
 {
-	cout << "EMPIEZA" << endl;
-	//cout << "Please enter seconds: ";//prompt for user
-	//int timer = 5; //int for user input
-	//cin >> timer; //user input
-	int timer = clock();
-	while ((timer / 1000) < 5) // While the program hasn't been going for 60 second
-	{
-		//system("cls"); // Clear All of the text
-		timer = clock();  // Update the timer var
-		cout << "Seconds since started: " << timer / 1000 << endl; // Print the time since the program started in seconds
-		break;
-	}
-	//cout << "The program has been going for a minute" << endl;
-	//system("pause");
-	cout << "ACABA" << endl;
+	//cout << "EMPIEZA" << endl;
+	static std::mutex m;
 
+	ThreadData* tdata = (ThreadData*)data;
+	EnemyCharacter* enemy = tdata->enemy;
+
+	Uint32 totalFrameTicks = 0;
+	Uint32 totalFrames = 0;
+
+	Uint32 startTicks = SDL_GetTicks();
+	Uint64 startPerf = SDL_GetPerformanceCounter();
+
+	enemy->isInDamage = true;
+
+	m.lock();
+	std::this_thread::sleep_for(std::chrono::milliseconds(200));
+	//cout << "ACABA" << endl;
+	enemy->isInDamage = false;
+
+	free(data);
+	m.unlock();
 	return 0;
 }
 
@@ -42,14 +53,21 @@ EnemyCharacter::~EnemyCharacter()
 	cout << "ME destruyen!!!" << endl;
 }
 
-EnemyCharacter::EnemyCharacter(const char* _filename, Grid& _grid)
+EnemyCharacter::EnemyCharacter(const char* _IdleImage, const char* _DamageImage, Grid& _grid)
 {
 	pathfinding = Pathfinding();
 	grid = _grid;
-	SDL_Surface* tmpSurface = IMG_Load(_filename);
+	SDL_Surface* tmpSurface = IMG_Load(_IdleImage);
 	characterTex = SDL_CreateTextureFromSurface(getRenderer(), tmpSurface);
+
+	tmpSurface = IMG_Load(_DamageImage);
+	characterDamageTex = SDL_CreateTextureFromSurface(getRenderer(), tmpSurface);
+
 	SDL_FreeSurface(tmpSurface);
 }
+
+
+
 
 void EnemyCharacter::Move()
 {
@@ -87,6 +105,70 @@ void EnemyCharacter::Move()
 		currentGridPosition.y = path[NodeToPosition]->y;
 		path[NodeToPosition]->enemyInNode = this;
 		path[NodeToPosition]->isEnemyNode = true;
+
+		startX = transform.position.x;
+		startY = transform.position.y;
+
+		endX = grid.maze[currentGridPosition.x][currentGridPosition.y]->centerPoint.x + 25;
+		endY = grid.maze[currentGridPosition.x][currentGridPosition.y]->centerPoint.y;
+
+		isMoving = true;
+	}
+}
+
+
+
+
+
+
+void EnemyCharacter::update(float deltaTime)
+{
+	if (isMoving)
+	{
+		tick += deltaTime;
+		//cout << "tick " << tick << endl;
+		float tval = min(tick / duration, 1.0f);
+
+		float myX = startX + (endX - startX) * tval;
+		float myY = startY + (endY - startY) * tval;
+
+		if (tval == 1)
+		{
+			//finished transition
+			isMoving = false;
+			tick = 0.0f;
+			grid.unActiveAllNodes();
+			//cout << "ACABA LA TRANSICION " << myX << endl;
+		}
+		/*cout << "myX " << myX << endl;
+		cout << "myY " << myY << endl;*/
+
+		transform.position.x = myX;
+		transform.position.y = myY;
+
+	}
+}
+
+
+
+void EnemyCharacter::draw()
+{
+
+
+	characterRect.h = transform.scale.y;
+	characterRect.w = transform.scale.x;
+	characterRect.x = transform.position.x;
+	characterRect.y = transform.position.y;
+
+	SDL_RenderCopy(getRenderer(), characterTex, NULL, &characterRect);
+
+	if (isInDamage == false)
+	{
+		SDL_RenderCopy(getRenderer(), characterTex, NULL, &characterRect);
+	}
+	else
+	{
+		SDL_RenderCopy(getRenderer(), characterDamageTex, NULL, &characterRect);
 	}
 }
 
@@ -119,12 +201,13 @@ void EnemyCharacter::DoDamage(int value)
 	}
 	else
 	{
-		int data = 101;
+	//	int data = 101;
+		ThreadData* data = new ThreadData();
+		data->enemy = this;
+
 		SDL_Thread* threadID = SDL_CreateThread(threadFunction, "LazyThread", (void*)data);
-		cout << "VAMOS" << endl;
-		//SDL_WaitThread(threadID, NULL);
-		//SDL_DetachThread(threadID);
-		//SDLK_thread
+
+	//	cout << "VAMOS" << endl;
 	}
 
 }

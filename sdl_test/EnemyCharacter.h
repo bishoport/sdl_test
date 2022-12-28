@@ -13,20 +13,19 @@ class EnemyCharacter : public Character
 public:
 	EnemyCharacter();
 	~EnemyCharacter();
-	EnemyCharacter(const char* _filename, Grid& _grid);
+	EnemyCharacter(const char* _IdleImage, const char* _DamageImage, Grid& _grid);
 	void Move();
+	void update(float deltaTime) override;
+	void draw() override;
 	int lifePoint = 10;
 	bool isDead = false;
 	
-
 	void DoDamage(int value);
 	//bool damageTimer(int num);
+
 private:
 	Pathfinding pathfinding;
 	vector<Grid::Node*> path;
-
-	
-	
 };
 
 #endif

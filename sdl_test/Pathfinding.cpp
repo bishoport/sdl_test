@@ -11,9 +11,9 @@ vector< Grid::Node*> Pathfinding::FindPath(Grid::Node& _startNode, Grid::Node& _
     bool destinationFound = false; //Flag
 
     //Reset GRID DATA NODES  
-    for (int i = 0; i < Grid::SIZE; i++)
+    for (int i = 0; i < Grid::SIZE_Y; i++)
     {
-        for (int j = 0; j < Grid::SIZE; j++)
+        for (int j = 0; j < Grid::SIZE_X; j++)
         {
             grid.maze[i][j]->fCost = FLT_MAX;
             grid.maze[i][j]->gCost = FLT_MAX;
@@ -134,7 +134,7 @@ vector< Grid::Node*> Pathfinding::FindPath(Grid::Node& _startNode, Grid::Node& _
 
     if (destinationFound == false) 
     {
-        cout << "Destination not found" << endl;
+        //cout << "Destination not found" << endl;
         return empty;
     }	
 

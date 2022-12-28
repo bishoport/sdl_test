@@ -27,13 +27,13 @@ typedef struct Transform
 
 
 
+
 class Grid {
 
 public:
-	static const int SIZE = 10;
+	static const int SIZE_Y = 15;
+	static const int SIZE_X = 21;
 	static const int SIZE_NODE = 50;
-
-
 
 	struct Node
 	{
@@ -55,20 +55,29 @@ public:
 		void* enemyInNode = nullptr;
 	};
 
-	Node* maze[SIZE][SIZE]{};
+	Node* maze[SIZE_Y][SIZE_X]{};
 	vector<Node*> path;
 
+	
 	string mazeFile =
-	"o x x x x x x x o o "
-	"x o o o o o o o o x "
-	"x o x x o x o x o x "
-	"x o o o o o o o o x "
-	"x o o x x x x o o x "
-	"o o o o o o o o o x "
-	"o o o o o o o o o o "
-	"x o x x o x x o o x "
-	"x o o o o o o o o x "
-	"x x x x x x x x x x ";
+		"xxxxxxxxxxxxxxxxxxxxx"
+		"xooooooxxoooxxooxxoox"
+		"xopooooxxoooxxooxxoox"
+		"xoooooooooooxxooxxoox"
+		"xooooooxxoooxxooxxoox"
+		"xooooooxxoooooooxxoox"
+		"xooooooxxooooxoooooox"
+		"xxxxxxxxxxxxoxxxxxxxx"
+		"xxxxxxxxxxxxoxxxxxxxx"
+		"xoooooooxxoooooeoooox"
+		"xoooxxooxxoooooxxooox"
+		"xoooxxooxxoooooxxooox"
+		"xoooxxooxxoooooxxooox"
+		"xoeoxxoooooooooxxooox"
+		"xxxxxxxxxxxxxxxxxxxxx";
+	
+	vector<Node*> startEnemiesNodes;
+	Node* startPlayerNode;
 
 	SDL_Color xColor = { 27,127,122,255 };
 	SDL_Color wayColor = { 8,151,180,255 };
@@ -80,6 +89,8 @@ public:
 	Grid();
 
 	void activeNode(int x, int y);
+	void unActiveNode(int x, int y);
+	void unActiveAllNodes();
 	void displayMaze();
 	Node* getNodeByCoordinates(int x, int y);
 	vector< Node*> GetMaxWalk(int x, int y);
