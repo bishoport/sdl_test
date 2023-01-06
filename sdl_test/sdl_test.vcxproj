@@ -167,13 +167,15 @@
     <ClInclude Include="Spritesheet.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="TimerPause.h" />
-    <ClInclude Include="TurnManager.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\..\..\..\SDL_ECS_TEMPLATE\SDL_ECS_TEMPLATE\SDL_ECS_TEMPLATE\assets\Alien_damage.png" />
     <Image Include="assets\sprites\Alien.png" />
+    <Image Include="assets\sprites\enemies_sprite_sheet.png" />
     <Image Include="assets\sprites\player.png" />
+    <Image Include="assets\sprites\player_sprite_sheet.png" />
     <Image Include="assets\sprites\sprite_sheet.png" />
+    <Image Include="assets\sprites\sprite_sheet_dungeon.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

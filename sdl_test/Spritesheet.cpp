@@ -68,7 +68,7 @@ void Spritesheet::free()
 	}
 }
 
-void Spritesheet::render(int x, int y, SDL_Rect* clip)
+void Spritesheet::render(int x, int y, SDL_RendererFlip flipType, SDL_Rect* clip)
 {
 	//Set rendering space and render to screen
 	SDL_Rect renderQuad = { x, y, mWidth, mHeight };
@@ -81,7 +81,8 @@ void Spritesheet::render(int x, int y, SDL_Rect* clip)
 	}
 
 	//Render to screen
-	SDL_RenderCopy(getRenderer(), mTexture, clip, &renderQuad);
+	//SDL_RenderCopy(getRenderer(), mTexture, clip, &renderQuad);
+	SDL_RenderCopyEx(getRenderer(), mTexture, clip, &renderQuad, 0, NULL, flipType);
 }
 
 int Spritesheet::getWidth()

@@ -1,14 +1,17 @@
 #include "Grid.h"
 #include <iostream>
+#include "Character.h"
+#include "ReferencesManager.h"
 
 using namespace std;
 
 Grid::Grid() {
+
 	stringstream ss(mazeFile, ios::in);
 
-	for (int column = 0; column < SIZE_Y; column++)
+	for (int column = 0; column < SIZE_COLS; column++)
 	{
-		for (int row = 0; row < SIZE_X; row++)
+		for (int row = 0; row < SIZE_ROWS; row++)
 		{
 			char buffer;
 			Node* n = new Node();
@@ -28,6 +31,15 @@ Grid::Grid() {
 				n->isWay = true;
 				startPlayerNode = n;
 			}
+			else if (buffer == 'x')
+			{
+				n->isWay = false;
+			}
+			else if (buffer == 'd')
+			{
+				n->isWay = false;
+				n->isDoor = true;
+			}
 
 			n->fCost = FLT_MAX;
 			n->gCost = FLT_MAX;
@@ -46,22 +58,24 @@ Grid::Grid() {
 			maze[column][row] = n;
 
 			//Center node in scene
-			maze[column][row]->centerPoint.x = row * SIZE_NODE - (SIZE_NODE / 2);
-			maze[column][row]->centerPoint.y = column * SIZE_NODE - (SIZE_NODE / 2);
+			maze[column][row]->centerPoint.x = (row + 1) * SIZE_NODE - (SIZE_NODE / 2);
+			maze[column][row]->centerPoint.y = (column + 1) * SIZE_NODE-(SIZE_NODE / 2);
 		}
 	}
 
-	//Set fourNeighbors
-	for (int i = 0; i < SIZE_Y; i++)
+	//Set Neighbors
+	for (int column = 0; column < SIZE_COLS; column++)
 	{
-		for (int j = 0; j < SIZE_X; j++)
+		for (int row = 0; row < SIZE_ROWS; row++)
 		{
-			maze[i][j]->fourNeighbors = GetFourNeighbors(i, j);
-			maze[i][j]->eightNeighbors = GetEightNeighbors(i, j);
+			maze[column][row]->fourNeighbors = GetFourNeighbors(column, row);
+			maze[column][row]->eightNeighbors = GetEightNeighbors(column, row,1);
 		}
 	}
 
-	cout << "YA" << endl;
+	Grid::loadMedia("assets/sprites/sprite_sheet_dungeon.png");
+
+	cout << "GRID GENERADO" << endl;
 }
 
 
@@ -73,102 +87,169 @@ bool Grid::loadMedia(const char* _filename)
 	//Load sprite sheet texture
 	if (!gSpriteSheetTexture.loadFromFile(_filename))
 	{
-		printf("Failed to load sprite sheet texture!\n");
+		printf("Failed to load sprite sheet texture in grid!\n");
 		success = false;
 	}
 	else
 	{
-		//Set idle sprite
-		gSpriteClips[0].x = Grid::SIZE_NODE * 9;
-		gSpriteClips[0].y = Grid::SIZE_NODE * 3;
+		//Set WAY sprite
+		gSpriteClips[0].x = Grid::SIZE_NODE * 0;
+		gSpriteClips[0].y = Grid::SIZE_NODE * 0;
 		gSpriteClips[0].w = Grid::SIZE_NODE;
 		gSpriteClips[0].h = Grid::SIZE_NODE;
+
+		//Set WALL sprite
+		gSpriteClips[1].x = Grid::SIZE_NODE * 1;
+		gSpriteClips[1].y = Grid::SIZE_NODE * 0;
+		gSpriteClips[1].w = Grid::SIZE_NODE;
+		gSpriteClips[1].h = Grid::SIZE_NODE;
+
+		//Set DOOR sprite
+		gSpriteClips[2].x = Grid::SIZE_NODE * 2;
+		gSpriteClips[2].y = Grid::SIZE_NODE * 0;
+		gSpriteClips[2].w = Grid::SIZE_NODE;
+		gSpriteClips[2].h = Grid::SIZE_NODE;
 	}
 
 	return success;
 }
 
-vector< Grid::Node*> Grid::GetFourNeighbors(int x, int y)
+vector< Grid::Node*> Grid::GetFourNeighbors(int column, int row)
 {
 	vector< Grid::Node*> temp_neighbors;
 
-	int checkX;
-	int checkY;
+	int checkColumn;
+	int checkRow;
 	
 	int step = 1;
 
 	//Check Right
-	checkX = x + step;
-	checkY = y;
+	checkColumn = column + step;
+	checkRow = row;
 
-	if (checkX >= 0 && checkX < Grid::SIZE_Y)
+	if (checkColumn >= 0 && checkColumn < Grid::SIZE_COLS)
 	{
-		if (checkY >= 0 && checkY < Grid::SIZE_X)
+		if (checkRow >= 0 && checkRow < Grid::SIZE_ROWS)
 		{
-			temp_neighbors.push_back((maze[checkX][checkY]));
+			temp_neighbors.push_back((maze[checkColumn][checkRow]));
 		}
 	}
 
 	////Check Left
-	checkX = x - step;
-	checkY = y;
+	checkColumn = column - step;
+	checkRow = row;
 
-	if (checkX >= 0 && checkX < Grid::SIZE_Y)
+	if (checkColumn >= 0 && checkColumn < Grid::SIZE_COLS)
 	{
-		if (checkY >= 0 && checkY < Grid::SIZE_X)
+		if (checkRow >= 0 && checkRow < Grid::SIZE_ROWS)
 		{
-			temp_neighbors.push_back((maze[checkX][checkY]));
+			temp_neighbors.push_back((maze[checkColumn][checkRow]));
 		}
 	}
 
 	//Check Top
-	checkX = x;
-	checkY = y + step;
+	checkColumn = column;
+	checkRow = row + step;
 
-	if (checkX >= 0 && checkX < Grid::SIZE_Y)
+	if (checkColumn >= 0 && checkColumn < Grid::SIZE_COLS)
 	{
-		if (checkY >= 0 && checkY < Grid::SIZE_X)
+		if (checkRow >= 0 && checkRow < Grid::SIZE_ROWS)
 		{
-			temp_neighbors.push_back((maze[checkX][checkY]));
+			temp_neighbors.push_back((maze[checkColumn][checkRow]));
 		}
 	}
 
 	//Check Bottom
-	checkX = x;
-	checkY = y - step;
+	checkColumn = column;
+	checkRow = row - step;
 
-	if (checkX >= 0 && checkX < Grid::SIZE_Y)
+	if (checkColumn >= 0 && checkColumn < Grid::SIZE_COLS)
 	{
-		if (checkY >= 0 && checkY < Grid::SIZE_X)
+		if (checkRow >= 0 && checkRow < Grid::SIZE_ROWS)
 		{
-			temp_neighbors.push_back((maze[checkX][checkY]));
+			temp_neighbors.push_back((maze[checkColumn][checkRow]));
 		}
 	}
 
 	return temp_neighbors;
 	//cout << node.fourNeighbors.size() << endl;
 }
-vector< Grid::Node*> Grid::GetEightNeighbors(int posX, int posY)
+
+vector< Grid::Node*> Grid::GetEightNeighbors(int column, int row, int range)
 {
 	vector< Grid::Node*> temp_neighbors;
 
-	for (int x = -1; x <= 1; x++)
+	for (int x = -range; x <= range; x++)
 	{
-		for (int y = -1; y <= 1; y++)
+		for (int y = -range; y <= range; y++)
 		{
 			if (x == 0 && y == 0)
 				continue;
 
-			int checkX = (maze[posX][posY])->x + x;
-			int checkY = (maze[posX][posY])->y + y;
-
-			if (checkX >= 0 && checkX < SIZE_Y && checkY >= 0 && checkY < SIZE_Y)
+			if (maze[column][row])
 			{
-				temp_neighbors.push_back((maze[checkX][checkY]));
+				int checkRow = (maze[column][row])->x + x;
+				int checkCol = (maze[column][row])->y + y;
+
+				if (checkRow >= 0 && checkRow < SIZE_ROWS && checkCol >= 0 && checkCol < SIZE_COLS)
+				{
+					temp_neighbors.push_back((maze[checkCol][checkRow]));
+				}
 			}
 		}
 	}
 	return temp_neighbors;
+}
+
+void Grid::setDiscoveredByRange(int column, int row, int range)
+{
+	for (int r = -range; r < range + 1; r++)
+	{
+		if (maze[row+ r][column])
+		{
+			for (int i = 0; i < maze[row+ r][column]->eightNeighbors.size(); i++)
+			{
+				maze[row + r][column]->eightNeighbors[i]->isDiscovered = true;
+			}
+		}
+		/*if (maze[row + r][column + r])
+		{
+			for (int i = 0; i < maze[row + r][column + r]->eightNeighbors.size(); i++)
+			{
+				maze[row + r][column + r]->eightNeighbors[i]->isDiscovered = true;
+			}
+		}*/
+		if (maze[row][column + r])
+		{
+			for (int i = 0; i < maze[row][column + r]->eightNeighbors.size(); i++)
+			{
+				maze[row][column + r]->eightNeighbors[i]->isDiscovered = true;
+			}
+		}
+
+
+		if (maze[row - r][column])
+		{
+			for (int i = 0; i < maze[row - r][column]->eightNeighbors.size(); i++)
+			{
+				maze[row - r][column]->eightNeighbors[i]->isDiscovered = true;
+			}
+		}
+		/*if (maze[row - r][column - r])
+		{
+			for (int i = 0; i < maze[row - r][column - r]->eightNeighbors.size(); i++)
+			{
+				maze[row - r][column - r]->eightNeighbors[i]->isDiscovered = true;
+			}
+		}*/
+		if (maze[row][column - r])
+		{
+			for (int i = 0; i < maze[row][column - r]->eightNeighbors.size(); i++)
+			{
+				maze[row][column - r]->eightNeighbors[i]->isDiscovered = true;
+			}
+		}
+	}
 }
 
 vector< Grid::Node*> Grid::GetMaxWalk(int x, int y)
@@ -204,9 +285,11 @@ Grid::Node* Grid::getNodeByCoordinates(int x, int y)
 
 
 
+
+
 void Grid::activeNode(int x, int y)
 {
-	if (x > SIZE_Y - 1 || x < 0 || y > SIZE_Y - 1 || y < 0)
+	if (x > SIZE_COLS - 1 || x < 0 || y > SIZE_COLS - 1 || y < 0)
 	{
 		cout << "x o y están fuera de limites" << endl;
 	}
@@ -218,7 +301,7 @@ void Grid::activeNode(int x, int y)
 
 void Grid::unActiveNode(int x, int y)
 {
-	if (x > SIZE_Y - 1 || x < 0 || y > SIZE_Y - 1 || y < 0)
+	if (x > SIZE_COLS - 1 || x < 0 || y > SIZE_COLS - 1 || y < 0)
 	{
 		cout << "x o y están fuera de limites" << endl;
 	}
@@ -230,9 +313,9 @@ void Grid::unActiveNode(int x, int y)
 
 void Grid::unActiveAllNodes()
 {
-	for (int i = 0; i < SIZE_Y; i++)
+	for (int i = 0; i < SIZE_COLS; i++)
 	{
-		for (int j = 0; j < SIZE_X; j++)
+		for (int j = 0; j < SIZE_ROWS; j++)
 		{
 			maze[i][j]->isActive = false;
 		}
@@ -243,43 +326,58 @@ void Grid::unActiveAllNodes()
 
 void Grid::displayMaze()
 {
-	for (int i = 0; i < SIZE_Y; i++)
+	for (int i = 0; i < SIZE_COLS; i++)
 	{
-		for (int j = 0; j < SIZE_X; j++)
+		for (int j = 0; j < SIZE_ROWS; j++)
 		{
-			SDL_Rect rectNode = { j * SIZE_NODE,i * SIZE_NODE , SIZE_NODE , SIZE_NODE };
 
-			if (maze[i][j]->isWay)
+			if (maze[i][j]->isDiscovered == true)
 			{
-				SDL_SetRenderDrawColor(getRenderer(), xColor.r, xColor.g, xColor.b, xColor.a);
-				gSpriteSheetTexture.render(transform.position.x, transform.position.y, &gSpriteClips[0]);
+				SDL_Rect rectNode = { j * SIZE_NODE,i * SIZE_NODE , SIZE_NODE , SIZE_NODE };
+
+				if (maze[i][j]->isWay)
+				{
+					//SDL_SetRenderDrawColor(getRenderer(), xColor.r, xColor.g, xColor.b, xColor.a);
+					gSpriteSheetTexture.render(rectNode.x, rectNode.y, SDL_FLIP_NONE, &gSpriteClips[0]);
+				}
+				else
+				{
+					if (maze[i][j]->isDoor)
+					{
+						gSpriteSheetTexture.render(rectNode.x, rectNode.y, SDL_FLIP_NONE, &gSpriteClips[2]);
+					}
+					else
+					{
+						gSpriteSheetTexture.render(rectNode.x, rectNode.y, SDL_FLIP_NONE, &gSpriteClips[1]);
+					}
+
+				}
+
+
+
+				//if (maze[i][j]->isPlayerNode)
+				//{
+				//	SDL_SetRenderDrawColor(getRenderer(), playerColor.r, playerColor.g, playerColor.b, playerColor.a);
+				//	SDL_RenderFillRect(getRenderer(), &rectNode);
+				//}
+
+				//if (maze[i][j]->isActive)
+				//{
+				//	SDL_SetRenderDrawColor(getRenderer(), activeColor.r, activeColor.g, activeColor.b, activeColor.a);
+				//	SDL_RenderFillRect(getRenderer(), &rectNode);
+				//}
+
+				//if (maze[i][j]->isEnemyNode)
+				//{
+				//	SDL_SetRenderDrawColor(getRenderer(), emenyColor.r, emenyColor.g, emenyColor.b, emenyColor.a);
+				//}
+
+				
+
+				//Draw center points in Node
+				//SDL_SetRenderDrawColor(getRenderer(), 255, 0, 0, 255);
+				//SDL_RenderDrawPoint(getRenderer(), maze[i][j]->centerPoint.x, maze[i][j]->centerPoint.y);
 			}
-			else
-			{
-				SDL_SetRenderDrawColor(getRenderer(), wayColor.r, wayColor.g, wayColor.b, wayColor.a);
-			}
-
-			//if (maze[i][j]->isActive)
-			//{
-			//	SDL_SetRenderDrawColor(getRenderer(), activeColor.r, activeColor.g, activeColor.b, activeColor.a);
-			//}
-
-			//if (maze[i][j]->isPlayerNode)
-			//{
-			//	SDL_SetRenderDrawColor(getRenderer(), playerColor.r, playerColor.g, playerColor.b, playerColor.a);
-			//}
-
-			//if (maze[i][j]->isEnemyNode)
-			//{
-			//	SDL_SetRenderDrawColor(getRenderer(), emenyColor.r, emenyColor.g, emenyColor.b, emenyColor.a);
-			//}
-
-			SDL_RenderFillRect(getRenderer(), &rectNode);
-
-			//Draw center points in Node
-			SDL_SetRenderDrawColor(getRenderer(), 255, 0, 0, 255);
-			SDL_RenderDrawPoint(getRenderer(), maze[i][j]->centerPoint.x, maze[i][j]->centerPoint.y);
 		}
 	}
-	
 }

@@ -32,9 +32,9 @@ typedef struct Transform
 class Grid {
 
 public:
-	static const int SIZE_Y = 15;
-	static const int SIZE_X = 21;
-	static const int SIZE_NODE = 32;
+	static const int SIZE_COLS = 21;
+	static const int SIZE_ROWS = 41;
+	static const int SIZE_NODE = 56;
 
 	struct Node
 	{
@@ -42,6 +42,11 @@ public:
 		bool isWay = false;
 		bool isPlayerNode = false;
 		bool isEnemyNode = false;
+
+		bool isDiscovered = false;
+
+		bool isDoor = false;
+
 		int y = 0;
 		int x = 0;
 		Vector2 centerPoint;
@@ -56,26 +61,53 @@ public:
 		void* enemyInNode = nullptr;
 	};
 
-	Node* maze[SIZE_Y][SIZE_X]{};
+	Node* maze[SIZE_COLS][SIZE_ROWS]{};
 	vector<Node*> path;
 
 	
+	//string mazeFile =
+
+	//	"xxxxxxxxxxxxxxxxxxxxx"
+	//	"xooooooxxoooxxooxxoox"
+	//	"xooooooxxoooxxoexxoox"
+	//	"xopoooodooooxxooxxoex"
+	//	"xooooooxxoooxxooxxoox"
+	//	"xooooooxxoooodooxxoox"
+	//	"xooooooxxooooxoooooox"
+	//	"xxxxxxxxxxxxdxxxxxxxx"
+	//	"xxxxxxxxxxxxoxxxxxxxx"
+	//	"xoooodooxxooooodoooox"
+	//	"xoooxxooxxoooooxxooox"
+	//	"xoeoxxooxxoooooxxooox"
+	//	"xoooxxooxxoooooxxooox"
+	//	"xoooxxooooooeooxxoeox"
+	//	"xxxxxxxxxxxxxxxxxxxxx"
+	//	;
+
 	string mazeFile =
-		"xxxxxxxxxxxxxxxxxxxxx"
-		"xooooooxxoooxxooxxoox"
-		"xopooooxxoooxxooxxoox"
-		"xoooooooooooxxooxxoox"
-		"xooooooxxoooxxooxxoox"
-		"xooooooxxoooooooxxoox"
-		"xooooooxxooooxoooooox"
-		"xxxxxxxxxxxxoxxxxxxxx"
-		"xxxxxxxxxxxxoxxxxxxxx"
-		"xoooooooxxoooooeoooox"
-		"xoooxxooxxoooooxxooox"
-		"xoooxxooxxoooooxxooox"
-		"xoooxxooxxoooooxxooox"
-		"xoeoxxoooooooooxxooox"
-		"xxxxxxxxxxxxxxxxxxxxx";
+		"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+		"xoooooooooxxoooooooooooooxxooooooooooooox"
+		"xoooooooooxxoooooooooooooxxooooooooooooox"
+		"xoopooooooxxoooooooooooooxxooooooooooooox"
+		"xoooooooooxxoooooooooooooxxooooooooooooox"
+		"xooooooooodooooooooooooooxxooooooooooooox"
+		"xoooooooooxxoooooooooooooxxooooooooooooox"
+		"xoooooooooxxooooooooooooodoooooooooooooox"
+		"xoooeooeooxxoooooooooooooxxooooooooooooox"
+		"xdxxxxxxxxxxxxxxxxxxxxxdxxxxxxxxxxxxxxxxx"
+		"xoxxxxxxxxxxxxxxxxxxxxxoxxxxxxxxxxxxxxxxx"
+		"xoooooooooxxoooooooooooooxxooooooooooooox"
+		"xoooooooooxxoooooooooooooxxooooooooooooox"
+		"xoooooooooxxoooooooooooooxxooooooooooooox"
+		"xoooooooooxxoooooooooooooxxooooooooooooox"
+		"xoooooooooxxooooooooooooodoooooooooooooox"
+		"xoooooooooxxoooooooooooooxxooooooooooooox"
+		"xoooooooooxxoooooooooooooxxooooooooooooox"
+		"xoooooooooxxoooooooooooooxxooooooooooooox"
+		"xoooooooooxxoooooooooooooxxooooooooooooox"
+		"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+		;
+
 	
 	vector<Node*> startEnemiesNodes;
 	Node* startPlayerNode;
@@ -89,6 +121,8 @@ public:
 	//Constructor
 	Grid();
 
+	void setDiscoveredByRange(int posX, int posY, int range);
+
 	void activeNode(int x, int y);
 	void unActiveNode(int x, int y);
 	void unActiveAllNodes();
@@ -98,9 +132,9 @@ public:
 
 private:
 	vector< Grid::Node*> GetFourNeighbors(int x, int y);
-	vector< Grid::Node*> GetEightNeighbors(int x, int y);
+	vector< Grid::Node*> GetEightNeighbors(int x, int y, int range);
 
-	SDL_Rect gSpriteClips[2];
+	SDL_Rect gSpriteClips[10];
 	Spritesheet  gSpriteSheetTexture;
 	bool loadMedia(const char* _filename);
 };

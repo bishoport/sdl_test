@@ -4,26 +4,28 @@
 
 #include <string>
 #include <iostream>
-#include "EnemyCharacter.h"
+//#include "EnemyCharacter.h"
 using namespace std;
 
 
 /* TYPEDEF */
-typedef int (*funcion_callback)();
+//typedef int (*funcion_callback);
 
 class TimerPause
 {
 public:
-	//funcion_callback _func;
-	std::function<void()> _func;
+	
 
 	TimerPause()
 	{
 	}
 
+	//funcion_callback _func;
+	std::function<void()> _func = []() {};
 
-	void StartPause(std::function<void()> func)
+	void StartPause(std::function<void()> func , int duration)
 	{
+		this->duration = duration;
 		this->_func = func;
 		isInPause = true;
 	}
@@ -56,6 +58,6 @@ public:
 private:
 	bool isInPause = false;
 	float tick = 0.0f;
-	float duration = 20.0f;
+	float duration = 1.0f;
 };
 #endif

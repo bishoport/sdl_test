@@ -4,6 +4,9 @@
 
 #include <string>
 #include "Grid.h"
+#include "TimerPause.h"
+
+
 
 using namespace std;
 
@@ -11,7 +14,9 @@ class Character {
 
 public:
 	Transform transform;
+	virtual void init();
 	virtual void draw();
+	virtual void move();
 	virtual void update(float deltaTime);
 	virtual void SetGridPosition(Vector2 gridPosition);
 	Vector2 currentGridPosition;
@@ -23,10 +28,12 @@ private:
 	
 
 protected:
-	Grid grid;
+	Grid* grid;
 	SDL_Texture* characterTex;
 	SDL_Texture* characterDamageTex;
 	SDL_Rect characterRect;
+
+	TimerPause* timerPauseCoroutine;
 
 	//PARA ANIMACIONES DE DESPLAZAMIENTO
 	float tick = 0.0f;

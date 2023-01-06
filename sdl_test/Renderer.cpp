@@ -8,8 +8,7 @@ static SDL_Renderer* renderer = NULL;
 
 void initRenderer(char* windowCaption)
 {
-    window = SDL_CreateWindow(windowCaption, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-        WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_RESIZABLE);
+    window = SDL_CreateWindow(windowCaption, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_RESIZABLE);
     if (window == NULL) {
         fprintf(stderr, "SDL_CreateWindow failed:%s", SDL_GetError());
         exit(1);
