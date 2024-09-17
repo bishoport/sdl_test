@@ -4,24 +4,43 @@
 
 #include <string>
 #include "Grid.h"
+#include "TimerPause.h"
+
 
 
 using namespace std;
-
 
 class Character {
 
 public:
 	Transform transform;
-	virtual void displayCharacter();
+	virtual void init();
+	virtual void draw();
+	virtual void move();
+	virtual void update(float deltaTime);
 	virtual void SetGridPosition(Vector2 gridPosition);
 	Vector2 currentGridPosition;
-	//int lifePoint = 10;
-	//void DoDamage(int value);
+	
+	bool isInDamage = false;
+	bool isMoving = false;
+
+private:
+	
 
 protected:
-	Grid grid;
+	Grid* grid;
 	SDL_Texture* characterTex;
+	SDL_Texture* characterDamageTex;
 	SDL_Rect characterRect;
+
+	TimerPause* timerPauseCoroutine;
+
+	//PARA ANIMACIONES DE DESPLAZAMIENTO
+	float tick = 0.0f;
+	float duration = 10.0f;
+	float startX = 0.0f;
+	float endX = 0.0f;
+	float startY = 0.0f;
+	float endY = 0.0f;
 };
 #endif

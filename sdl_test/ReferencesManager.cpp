@@ -1,10 +1,7 @@
 #include "ReferencesManager.h"
 
 
-ReferencesManager::ReferencesManager()
-{
-
-}
+ReferencesManager::ReferencesManager(){}
 
 void ReferencesManager::setPlayerCharacter(PlayerCharacter* _player)
 {
@@ -15,3 +12,5 @@ PlayerCharacter* ReferencesManager::getPlayerCharacter()
 {
 	return player;
 }
+
+

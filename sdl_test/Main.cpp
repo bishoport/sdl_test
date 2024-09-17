@@ -1,9 +1,13 @@
 ﻿#include <SDL.h>
+#include <SDL_opengl.h>
+#include <GL\GLU.h>
 #include <SDL_image.h>
 #include <iostream>
 #include "initclose.h"
 #include "renderer.h"
 
+#include "Timer.h"
+//#include "TimerPause.h"
 
 
 #include "Grid.h"
@@ -26,41 +30,64 @@ typedef struct gameT
 	Vector2 mousePoint;
 	Vector2 mapScroll2Dpos;
 	int mapScrolllSpeed;
-	//isoEngineT isoEngine;
 	int lastTileClicked;
 }gameT;
 
 gameT game;
-
-Grid grid;
-
-PlayerCharacter player;
-EnemyCharacter enemy;
-
+Grid* grid;
 ReferencesManager* ReferencesManager::_instance;
+
+int currentTurn = 0;
+Timer* gloabalTimer;
+TimerPause* timerPauseCoroutine;
+
+EnemyCharacter* enemyTurn;
+
+bool playerTurn = true;
+
+void calculeNextTurn(); //forward declaration
 
 void init()
 {
+	grid = new Grid();
 
-	grid = Grid();
-	
 	game.loopDone = 0;
 	SDL_PumpEvents();  // make sure we have the latest mouse state
 
+	//Player
+	PlayerCharacter* player;
+	player = new PlayerCharacter( "assets/sprites/player_sprite_sheet.png",grid);
+	player->init();
+	player->SetGridPosition({grid->startPlayerNode->y,grid->startPlayerNode->x});//+ Grid::SIZE_NODE / 2;
+	grid->maze[grid->startPlayerNode->x][grid->startPlayerNode->y]->isPlayerNode = true;
+	player->transform.scale.x = Grid::SIZE_NODE;
+	player->transform.scale.y = Grid::SIZE_NODE;
+	ReferencesManager::getInstance()->setPlayerCharacter(player);
+	grid->setDiscoveredByRange(grid->startPlayerNode->y, grid->startPlayerNode->x, 2);
 
-	////Player
-	player = PlayerCharacter( "assets/sprites/player.png",grid);
-	player.SetGridPosition({3,5});
-	player.transform.scale.x = 50;
-	player.transform.scale.y = 50;
-	ReferencesManager::getInstance()->setPlayerCharacter(&player);
 
-	//////Enemy
-	enemy =  EnemyCharacter("assets/sprites/Alien.png", grid);
-	enemy.SetGridPosition({ 6,2 });
-	enemy.transform.scale.x = 50;
-	enemy.transform.scale.y = 50;
+	//Enemies
+	for (int i = 0; i < grid->startEnemiesNodes.size(); i++)
+	{
+		EnemyCharacter* enemy;
+		enemy = new EnemyCharacter("assets/sprites/enemies_sprite_sheet.png", grid);
+		enemy->init();
+		enemy->SetGridPosition({ grid->startEnemiesNodes[i]->y,grid->startEnemiesNodes[i]->x});
+		enemy->transform.scale.x = Grid::SIZE_NODE;
+		enemy->transform.scale.y = Grid::SIZE_NODE;
+		ReferencesManager::getInstance()->enemies.push_back(enemy);
+	}
+
+	//TIMERS CONTROLLERS
+	gloabalTimer = new Timer();
+	timerPauseCoroutine = new TimerPause();
+
+	calculeNextTurn();
+	playerTurn = true;
 }
+
+
+
 
 
 void draw()
@@ -69,27 +96,159 @@ void draw()
 	SDL_RenderClear(getRenderer());
 
 	//DRAW STUFFS
-	grid.displayMaze();
+	grid->displayMaze();
 
-	player.displayCharacter();
-	enemy.displayCharacter();
+	ReferencesManager::getInstance()->getPlayerCharacter()->draw();
 
-	grid.maze[player.currentGridPosition.x][player.currentGridPosition.y]->isPlayerNode = true;
-	grid.maze[enemy.currentGridPosition.x][enemy.currentGridPosition.y]->isEnemyNode = true;
+	grid->maze[ReferencesManager::getInstance()->getPlayerCharacter()->currentGridPosition.x][ReferencesManager::getInstance()->getPlayerCharacter()->currentGridPosition.y]->isPlayerNode = true;
+
+	for (int i = 0; i < ReferencesManager::getInstance()->enemies.size(); i++)
+	{
+		if (dynamic_cast<EnemyCharacter*>(ReferencesManager::getInstance()->enemies[i]))
+		{
+			EnemyCharacter* enemy = dynamic_cast<EnemyCharacter*>(ReferencesManager::getInstance()->enemies[i]);
+
+			if (enemy->isDead == false)
+			{
+				ReferencesManager::getInstance()->enemies[i]->draw();
+				grid->maze[enemy->currentGridPosition.x][enemy->currentGridPosition.y]->isEnemyNode = true;
+			}
+		}
+	}
 
 	SDL_RenderPresent(getRenderer());
 	//Don't be a CPU HOG!! :D
-	SDL_Delay(10);
+	SDL_Delay(1);
 }
+
+
 
 void update()
 {
 	SDL_GetMouseState(&game.mouseRect.x, &game.mouseRect.y);
+	
+	//TIME UPDATE
+	timerPauseCoroutine->update(gloabalTimer->GetDeltaTime());
+
+	//PLAYER UPDATE
+	ReferencesManager::getInstance()->getPlayerCharacter()->update(gloabalTimer->GetDeltaTime());
+
+	//ENEMIES UPDATE
+	for (int i = 0; i < ReferencesManager::getInstance()->enemies.size(); i++)
+	{
+		if (dynamic_cast<EnemyCharacter*>(ReferencesManager::getInstance()->enemies[i]))
+		{
+			EnemyCharacter* enemy = dynamic_cast<EnemyCharacter*>(ReferencesManager::getInstance()->enemies[i]);
+			/*if (enemy->isDead == false)
+			{*/
+				enemy->update(gloabalTimer->GetDeltaTime());
+			//}
+		}
+	}
+}
+
+
+
+void moveAllEnemies()
+{
+	if (playerTurn == true)
+	{
+		cout << "ES EL TURNO DEL PLAYER, NO DEBERIA PASAR POR AQUI" << endl;
+		return;
+	}
+
+	if (grid->maze[enemyTurn->currentGridPosition.x][enemyTurn->currentGridPosition.y]->isDiscovered)
+	{
+		enemyTurn->move();
+		timerPauseCoroutine->StartPause([]() {
+			calculeNextTurn();
+		},20);
+	}
+	else
+	{
+		timerPauseCoroutine->StartPause([]() {
+			calculeNextTurn();
+		},1);
+	}
+	
+}
+
+void calculeNextTurn()
+{
+	for (int i = 0; i < ReferencesManager::getInstance()->enemies.size(); i++)
+	{
+		if (dynamic_cast<EnemyCharacter*>(ReferencesManager::getInstance()->enemies[i]))
+		{
+			EnemyCharacter* enemy = dynamic_cast<EnemyCharacter*>(ReferencesManager::getInstance()->enemies[i]);
+
+			if (enemy->isDead)
+			{
+				//Eliminamos de la lista el enemigo si está muerto
+				ReferencesManager::getInstance()->enemies.erase(std::remove(ReferencesManager::getInstance()
+					->enemies.begin(), ReferencesManager::getInstance()->enemies.end(),
+					enemy), ReferencesManager::getInstance()->enemies.end());
+			}
+		}
+	}
+
+	if (ReferencesManager::getInstance()->enemies.size() == 0)
+	{
+		cout << "END GAME" << endl;
+	}
+	else
+	{
+		if (dynamic_cast<EnemyCharacter*>(ReferencesManager::getInstance()->enemies[currentTurn]))
+		{
+			enemyTurn = dynamic_cast<EnemyCharacter*>(ReferencesManager::getInstance()->enemies[currentTurn]);
+		}
+
+
+		if (currentTurn == ReferencesManager::getInstance()->enemies.size() -1)
+		{
+			ReferencesManager::getInstance()->getPlayerCharacter()->secondActionSelected = -1;
+			playerTurn = true;
+			currentTurn = 0;
+		}
+		else
+		{
+			moveAllEnemies(); //<-Recursive call
+			currentTurn += 1;
+		}
+
+		cout << "CURRENT TURN->" << currentTurn << endl;
+	}
 }
 
 
 
 
+
+void firstActionInput(const char* axis)
+{
+
+}
+
+//bool firstActionSelected = false;
+
+
+
+void MovePlayer(const char* firstActionSelected , int secondActionSelected )
+{
+	ReferencesManager::getInstance()->getPlayerCharacter()->firstActionSelected = firstActionSelected; 
+	ReferencesManager::getInstance()->getPlayerCharacter()->secondActionSelected = secondActionSelected;
+	ReferencesManager::getInstance()->getPlayerCharacter()->MoveFromInput();
+	timerPauseCoroutine->StartPause([]() {
+		moveAllEnemies();
+		}, 20);
+	playerTurn = false;
+	//firstActionSelected = false;
+}
+
+//-1 -> None
+	// 0 -> Only Move DOWN
+	// 1 -> near attack RIGHT
+	// 2 -> far attack UP
+	// 3 -> with shiled LEFT
 
 void updateInput()
 {
@@ -105,24 +264,100 @@ void updateInput()
 
 		case SDL_KEYDOWN:
 			switch (game.event.key.keysym.sym) {
+
 			case SDLK_a:
-				player.Move("-Y");
-				enemy.Move();
+				if (playerTurn)
+				{
+					MovePlayer("-Y", 1);
+
+					//if (firstActionSelected == false)
+					//{
+					//	ReferencesManager::getInstance()->getPlayerCharacter()->firstActionSelected = "-Y"; //IZQUIERDA
+					//	firstActionSelected = true;
+					//}
+					//else 
+					//{
+					//	ReferencesManager::getInstance()->getPlayerCharacter()->secondActionSelected = 3;
+					//	ReferencesManager::getInstance()->getPlayerCharacter()->MoveFromInput();
+					//	timerPauseCoroutine->StartPause([]() {
+					//		moveAllEnemies();
+					//		}, 20);
+					//	playerTurn = false;
+					//	firstActionSelected = false;
+					//}
+				}
 				break;
 
+
+
 			case SDLK_d:
-				player.Move("+Y");
-				enemy.Move();
+				if (playerTurn)
+				{
+					MovePlayer("+Y", 1);
+
+					//if (firstActionSelected == false)
+					//{
+					//	ReferencesManager::getInstance()->getPlayerCharacter()->firstActionSelected = "+Y"; //DERECHA
+					//	firstActionSelected = true;
+					//}
+					//else
+					//{
+					//	ReferencesManager::getInstance()->getPlayerCharacter()->secondActionSelected = 1;
+					//	ReferencesManager::getInstance()->getPlayerCharacter()->MoveFromInput();
+					//	timerPauseCoroutine->StartPause([]() {
+					//		moveAllEnemies();
+					//		}, 20);
+					//	playerTurn = false;
+					//	firstActionSelected = false;
+					//}
+				}
 				break;
 
 			case SDLK_w:
-				player.Move("-X");
-				enemy.Move();
+				if (playerTurn)
+				{
+					MovePlayer("-X", 1);
+
+
+					//if (firstActionSelected == false)
+					//{
+					//	ReferencesManager::getInstance()->getPlayerCharacter()->firstActionSelected = "-X";  //ARRIBA
+					//	firstActionSelected = true;
+					//}
+					//else
+					//{
+					//	ReferencesManager::getInstance()->getPlayerCharacter()->secondActionSelected = 2;
+					//	ReferencesManager::getInstance()->getPlayerCharacter()->MoveFromInput();
+					//	timerPauseCoroutine->StartPause([]() {
+					//		moveAllEnemies();
+					//		}, 20);
+					//	playerTurn = false;
+					//	firstActionSelected = false;
+					//}
+				}
 				break;
 
 			case SDLK_s:
-				player.Move("+X");
-				enemy.Move();
+				if (playerTurn)
+				{
+					MovePlayer("+X", 1);
+
+					//if (firstActionSelected == false)
+					//{
+					//	ReferencesManager::getInstance()->getPlayerCharacter()->firstActionSelected = "+X"; //ABAJO
+					//	firstActionSelected = true;
+					//}
+					//else
+					//{
+					//	ReferencesManager::getInstance()->getPlayerCharacter()->secondActionSelected = 0;
+					//	ReferencesManager::getInstance()->getPlayerCharacter()->MoveFromInput();
+					//	timerPauseCoroutine->StartPause([]() {
+					//		moveAllEnemies();
+					//		}, 20);
+					//	playerTurn = false;
+					//	firstActionSelected = false;
+					//}
+				}
 				break;
 			default:break;
 			}
@@ -141,6 +376,8 @@ void updateInput()
 
 			if (game.event.button.button == SDL_BUTTON_LEFT)
 			{
+				//enemies.erase(std::remove(enemies.begin(), enemies.end(), enemies[0]), enemies.end());
+
 				//int x, y;
 				////Uint32 buttons;
 				//SDL_GetMouseState(&x, &y);
@@ -185,6 +422,8 @@ void updateInput()
 
 
 
+
+
 int main(int argc, char* argv[])
 {
 	char title[10] = "GRID";
@@ -195,6 +434,10 @@ int main(int argc, char* argv[])
 		update();
 		updateInput();
 		draw();
+		gloabalTimer->Tick();
+		//Update screen
+		
+	
 	}
 
 	closeDownSDL();
